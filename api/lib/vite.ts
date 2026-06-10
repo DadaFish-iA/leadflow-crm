@@ -13,7 +13,7 @@ export function serveStaticFiles(app: App) {
   const distPath = path.resolve(__dirname, "../dist/public");
 
   // Serve static files from /assets/
-n  app.use("/assets/*", serveStatic({ root: "./dist/public" }));
+  app.use("/assets/*", serveStatic({ root: "./dist/public" }));
 
   // For all other routes, serve index.html (SPA fallback)
   app.get("*", (c) => {
