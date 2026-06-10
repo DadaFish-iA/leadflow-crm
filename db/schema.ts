@@ -1,6 +1,7 @@
 import {
   mysqlTable,
   serial,
+  bigint,
   varchar,
   text,
   timestamp,
@@ -42,7 +43,7 @@ export const leads = mysqlTable("leads", {
 
 export const leadNotes = mysqlTable("lead_notes", {
   id: serial("id").primaryKey(),
-  leadId: serial("lead_id").notNull(),
+  leadId: bigint("lead_id", { mode: "number", unsigned: true }).notNull(),
   contenido: text("contenido").notNull(),
   fecha: timestamp("fecha").defaultNow().notNull(),
   autor: varchar("autor", { length: 255 }).notNull().default("Sistema"),
