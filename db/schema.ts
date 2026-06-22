@@ -11,7 +11,7 @@ import {
 export const leadSourceEnum = [
   "whatsapp-web",
   "instagram",
-  "facebook",
+   "facebook",
   "meta-ads",
   "formulario-web",
   "otro",
@@ -24,6 +24,7 @@ export const leadStatusEnum = [
   "convertido",
   "no-interesado",
   "pendiente",
+  "interes-alto",
 ] as const;
 
 export const leads = mysqlTable("leads", {
@@ -32,6 +33,7 @@ export const leads = mysqlTable("leads", {
   email: varchar("email", { length: 320 }).notNull(),
   telefono: varchar("telefono", { length: 50 }).notNull(),
   fuente: mysqlEnum("fuente", [...leadSourceEnum]).notNull().default("otro"),
+  fuentesAdicionales: text("fuentes_adicionales"),
   estado: mysqlEnum("estado", [...leadStatusEnum]).notNull().default("nuevo"),
   mensaje: text("mensaje"),
   campana: varchar("campana", { length: 255 }),

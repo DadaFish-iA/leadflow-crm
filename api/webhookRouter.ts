@@ -32,6 +32,7 @@ export const webhookRouter = createRouter({
             "convertido",
             "no-interesado",
             "pendiente",
+            "interes-alto",
           ])
           .default("nuevo"),
         mensaje: z.string().optional(),
@@ -51,10 +52,22 @@ export const webhookRouter = createRouter({
             ...leadData,
             fechaUltimoContacto: new Date(),
           });
+          
+          if (result.wasDuplicate) {
+            return {
+              success: true,
+              lead: result.lead,
+              created: false,
+              wasDuplicate: true,
+              message: "Lead existente actualizado - Interes multicanal detectado",
+            };
+          }
+          
           return {
             success: true,
             lead: result.lead,
             created: result.created,
+            wasDuplicate: false,
             message: result.created
               ? "Lead creado exitosamente"
               : "Lead actualizado exitosamente",
@@ -68,6 +81,7 @@ export const webhookRouter = createRouter({
             success: true,
             lead,
             created: true,
+            wasDuplicate: false,
             message: "Lead creado exitosamente",
           };
         }
@@ -76,6 +90,7 @@ export const webhookRouter = createRouter({
           success: false,
           lead: null,
           created: false,
+          wasDuplicate: false,
           message: error.message || "Error al procesar el lead",
         };
       }

@@ -131,5 +131,12 @@ export const leadRouter = createRouter({
     )
     .mutation(({ input }) => addNote(input.leadId, input.contenido, input.autor)),
 
-  stats: publicQuery.query(() => getDashboardStats()),
+    stats: publicQuery.query(() => getDashboardStats()),
+  
+  multicanal: publicQuery.query(async () => {
+    const allLeads = await getAllLeads();
+    return allLeads.filter(
+      (l) => l.fuentesAdicionales && l.fuentesAdicionales.length > 0
+    );
+  }),
 });

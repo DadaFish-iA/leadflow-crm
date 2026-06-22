@@ -1,4 +1,4 @@
-import { Users, UserPlus, TrendingUp, Activity } from "lucide-react";
+import { Users, UserPlus, TrendingUp, Activity, Zap } from "lucide-react";
 import type { DashboardStats } from "@/types";
 
 interface StatsCardsProps {
@@ -41,10 +41,17 @@ export function StatsCards({ stats }: StatsCardsProps) {
       color: "#F59E0B",
       bgColor: "#FFFBEB",
     },
+    {
+      title: "Multicanal",
+      value: stats.leadsMulticanal || 0,
+      icon: Zap,
+      color: "#DC2626",
+      bgColor: "#FEF2F2",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       {cards.map((card) => (
         <div
           key={card.title}

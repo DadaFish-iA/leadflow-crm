@@ -318,8 +318,24 @@ export function LeadsPage({ onViewLead, onEditLead, onAddLead }: LeadsPageProps)
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <SourceBadge source={lead.fuente} />
+                   <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-1">
+                      <SourceBadge source={lead.fuente} />
+                      {lead.fuentesAdicionales && (
+                        <span className="inline-flex items-center px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded-full border border-red-200">
+                          MULTICANAL
+                        </span>
+                      )}
+                    </div>
+                    {lead.fuentesAdicionales && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {lead.fuentesAdicionales.split(",").map((s) => s.trim()).filter(Boolean).map((src) => (
+                          <span key={src} className="text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                            +{SOURCE_LABELS[src as LeadSource] || src}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <DropdownMenu>

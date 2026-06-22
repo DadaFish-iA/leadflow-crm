@@ -12,7 +12,8 @@ export type LeadStatus =
   | "en-seguimiento"
   | "convertido"
   | "no-interesado"
-  | "pendiente";
+  | "pendiente"
+  | "interes-alto";
 
 export interface Lead {
   id: number;
@@ -20,6 +21,7 @@ export interface Lead {
   email: string;
   telefono: string;
   fuente: LeadSource;
+  fuentesAdicionales: string | null;
   estado: LeadStatus;
   mensaje: string | null;
   campana: string | null;
@@ -43,6 +45,7 @@ export interface DashboardStats {
   tasaConversion: number;
   leadsPorFuente: Record<string, number>;
   leadsPorEstado: Record<string, number>;
+  leadsMulticanal: number;
 }
 
 export const SOURCE_LABELS: Record<LeadSource, string> = {
@@ -61,6 +64,7 @@ export const STATUS_LABELS: Record<LeadStatus, string> = {
   convertido: "Convertido",
   "no-interesado": "No Interesado",
   pendiente: "Pendiente",
+  "interes-alto": "Interes Alto",
 };
 
 export const SOURCE_COLORS: Record<LeadSource, string> = {
@@ -79,6 +83,7 @@ export const STATUS_COLORS: Record<LeadStatus, string> = {
   convertido: "#10B981",
   "no-interesado": "#EF4444",
   pendiente: "#6B7280",
+  "interes-alto": "#DC2626",
 };
 
 export const STATUS_BG_COLORS: Record<LeadStatus, string> = {
@@ -88,6 +93,7 @@ export const STATUS_BG_COLORS: Record<LeadStatus, string> = {
   convertido: "#ECFDF5",
   "no-interesado": "#FEF2F2",
   pendiente: "#F9FAFB",
+  "interes-alto": "#FEF2F2",
 };
 
 export const SOURCE_OPTIONS: LeadSource[] = [
@@ -106,4 +112,5 @@ export const STATUS_OPTIONS: LeadStatus[] = [
   "convertido",
   "no-interesado",
   "pendiente",
+  "interes-alto",
 ];

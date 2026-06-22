@@ -37,26 +37,6 @@ export async function searchLeads(query: string): Promise<Lead[]> {
     .orderBy(desc(leads.fechaRegistro));
 }
 
-export async function getLeadsBySource(
-  source: LeadSource,
-): Promise<Lead[]> {
-  return getDb()
-    .select()
-    .from(leads)
-    .where(eq(leads.fuente, source))
-    .orderBy(desc(leads.fechaRegistro));
-}
-
-export async function getLeadsByStatus(
-  status: LeadStatus,
-): Promise<Lead[]> {
-  return getDb()
-    .select()
-    .from(leads)
-    .where(eq(leads.estado, status))
-    .orderBy(desc(leads.fechaRegistro));
-}
-
 export async function getFilteredLeads(
   search?: string,
   source?: LeadSource,
@@ -184,6 +164,7 @@ export async function getDashboardStats(): Promise<{
   tasaConversion: number;
   leadsPorFuente: Record<string, number>;
   leadsPorEstado: Record<string, number>;
+  leadsMulticanal: number;
 }> {
   const allLeads = await getAllLeads();
 
@@ -217,6 +198,7 @@ export async function getDashboardStats(): Promise<{
     convertido: 0,
     "no-interesado": 0,
     pendiente: 0,
+    "interes-alto": 0,
   };
 
   allLeads.forEach((lead) => {
@@ -224,23 +206,27 @@ export async function getDashboardStats(): Promise<{
     leadsPorEstado[lead.estado] = (leadsPorEstado[lead.estado] || 0) + 1;
   });
 
+  const leadsMulticanal = allLeads.filter(
+    (l) => l.fuentesAdicionales && l.fuentesAdicionales.length > 0
+  ).length;
+
   return {
     totalLeads,
     nuevosEsteMes,
     tasaConversion,
     leadsPorFuente,
     leadsPorEstado,
+    leadsMulticanal,
   };
 }
 
 // Upsert for webhook (create or update by email/phone)
+// Returns: lead, created (true if new), wasDuplicate (true if existed)
 export async function upsertLeadByContact(
   data: Omit<InsertLead, "id" | "fechaRegistro">,
-): Promise<{ lead: Lead; created: boolean }> {
-  const db = getDb();
-
+): Promise<{ lead: Lead; created: boolean; wasDuplicate: boolean }> {
   // Try to find existing lead by email or phone
-  const existing = await db
+  const existing = await getDb()
     .select()
     .from(leads)
     .where(
@@ -249,13 +235,43 @@ export async function upsertLeadByContact(
     .limit(1);
 
   if (existing.length > 0 && existing[0]) {
-    const updated = await updateLead(existing[0].id, {
+    const oldLead = existing[0];
+    const newFuente = data.fuente;
+    
+    // Check if source is different
+    if (oldLead.fuente !== newFuente) {
+      // Build list of additional sources
+      const existingAdditional = oldLead.fuentesAdicionales 
+        ? oldLead.fuentesAdicionales.split(",").map(s => s.trim()).filter(Boolean)
+        : [];
+      
+      const allSources = [oldLead.fuente, ...existingAdditional];
+      
+      // Only add if this source is new
+      if (!allSources.includes(newFuente)) {
+        const updatedAdditional = [...existingAdditional, newFuente].join(",");
+        
+        const updated = await updateLead(oldLead.id, {
+          ...data,
+          fuentesAdicionales: updatedAdditional,
+          estado: "interes-alto", // Mark as high interest
+          fechaUltimoContacto: new Date(),
+        });
+        
+        return { lead: updated, created: false, wasDuplicate: true };
+      }
+    }
+    
+    // Same source or already tracked, just update
+    const updated = await updateLead(oldLead.id, {
       ...data,
       fechaUltimoContacto: new Date(),
     });
-    return { lead: updated, created: false };
+    
+    return { lead: updated, created: false, wasDuplicate: false };
   }
 
+  // New lead
   const created = await createLead(data);
-  return { lead: created, created: true };
+  return { lead: created, created: true, wasDuplicate: false };
 }
