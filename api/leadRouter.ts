@@ -42,7 +42,7 @@ export const leadRouter = createRouter({
       ),
     ),
 
-    create: publicQuery
+  create: publicQuery
     .input(
       z.object({
         nombre: z.string().min(1, "El nombre es requerido"),
@@ -73,14 +73,13 @@ export const leadRouter = createRouter({
         tags: z.string().optional(),
       }),
     )
-       .mutation(async ({ input }) => {
+    .mutation(async ({ input }) => {
       const result = await upsertLeadByContact({
         ...input,
         fechaUltimoContacto: new Date(),
       });
       return result.lead;
     }),
-    ),
 
   update: publicQuery
     .input(
@@ -116,6 +115,7 @@ export const leadRouter = createRouter({
           "convertido",
           "no-interesado",
           "pendiente",
+          "interes-alto",
         ]),
       }),
     )
@@ -135,8 +135,8 @@ export const leadRouter = createRouter({
     )
     .mutation(({ input }) => addNote(input.leadId, input.contenido, input.autor)),
 
-    stats: publicQuery.query(() => getDashboardStats()),
-  
+  stats: publicQuery.query(() => getDashboardStats()),
+
   multicanal: publicQuery.query(async () => {
     const allLeads = await getAllLeads();
     return allLeads.filter(
