@@ -73,8 +73,7 @@ export const leadRouter = createRouter({
         tags: z.string().optional(),
       }),
     )
-    .mutation(async ({ input }) => {
-      // Use upsert to detect duplicates
+       .mutation(async ({ input }) => {
       const result = await upsertLeadByContact({
         ...input,
         fechaUltimoContacto: new Date(),
