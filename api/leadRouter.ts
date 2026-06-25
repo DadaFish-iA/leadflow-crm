@@ -12,6 +12,7 @@ import {
   getNotesByLeadId,
   addNote,
   getDashboardStats,
+  upsertLeadByContact,
 } from "./queries/leads";
 
 export const leadRouter = createRouter({
@@ -41,7 +42,7 @@ export const leadRouter = createRouter({
       ),
     ),
 
-  create: publicQuery
+    create: publicQuery
     .input(
       z.object({
         nombre: z.string().min(1, "El nombre es requerido"),
@@ -63,6 +64,7 @@ export const leadRouter = createRouter({
             "convertido",
             "no-interesado",
             "pendiente",
+            "interes-alto",
           ])
           .default("nuevo"),
         mensaje: z.string().optional(),
@@ -71,11 +73,14 @@ export const leadRouter = createRouter({
         tags: z.string().optional(),
       }),
     )
-    .mutation(({ input }) =>
-      createLead({
+    .mutation(async ({ input }) => {
+      // Use upsert to detect duplicates
+      const result = await upsertLeadByContact({
         ...input,
         fechaUltimoContacto: new Date(),
-      }),
+      });
+      return result.lead;
+    }),
     ),
 
   update: publicQuery
